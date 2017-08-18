@@ -21,7 +21,6 @@ set(source_c_files
 )
 
 set(source_h_files
-    ./inc/custom_hsm_impl.h
     ./inc/tpm_openssl.h
     ./inc/x509_openssl.h
 )

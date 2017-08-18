@@ -24,8 +24,8 @@ extern void deinitialize_hsm_system();
 // x509 Functions
 extern char* custom_hsm_get_certificate(DPS_CUSTOM_HSM_HANDLE handle);
 extern char* custom_hsm_get_alias_key(DPS_CUSTOM_HSM_HANDLE handle);
-extern char* custom_hsm_get_get_signer_cert(DPS_CUSTOM_HSM_HANDLE handle);
-extern char* custom_hsm_get_get_common_name(DPS_CUSTOM_HSM_HANDLE handle);
+extern char* custom_hsm_get_signer_cert(DPS_CUSTOM_HSM_HANDLE handle);
+extern char* custom_hsm_get_common_name(DPS_CUSTOM_HSM_HANDLE handle);
 
 extern int custom_hsm_get_endorsement_key(DPS_CUSTOM_HSM_HANDLE handle, unsigned char** key, size_t* key_len);
 extern int custom_hsm_get_storage_root_key(DPS_CUSTOM_HSM_HANDLE handle, unsigned char** key, size_t* key_len);

@@ -43,7 +43,6 @@ int initialize_hsm_system()
 
 void deinitialize_hsm_system()
 {
-
 }
 
 char* custom_hsm_get_certificate(DPS_CUSTOM_HSM_HANDLE handle)
@@ -82,7 +81,7 @@ char* custom_hsm_get_alias_key(DPS_CUSTOM_HSM_HANDLE handle)
     return result;
 }
 
-char* custom_hsm_get_get_signer_cert(DPS_CUSTOM_HSM_HANDLE handle)
+char* custom_hsm_get_signer_cert(DPS_CUSTOM_HSM_HANDLE handle)
 {
     char* result;
     if (handle == NULL)
@@ -101,7 +100,7 @@ char* custom_hsm_get_get_signer_cert(DPS_CUSTOM_HSM_HANDLE handle)
     return result;
 }
 
-char* dps_hsm_custom_get_common_name(DPS_CUSTOM_HSM_HANDLE handle)
+char* custom_hsm_get_common_name(DPS_CUSTOM_HSM_HANDLE handle)
 {
     char* result;
     if (handle == NULL)
