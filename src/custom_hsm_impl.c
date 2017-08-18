@@ -36,6 +36,16 @@ void custom_hsm_destroy(DPS_CUSTOM_HSM_HANDLE handle)
     }
 }
 
+int initialize_hsm_system()
+{
+    return 0;
+}
+
+void deinitialize_hsm_system()
+{
+
+}
+
 char* custom_hsm_get_certificate(DPS_CUSTOM_HSM_HANDLE handle)
 {
     char* result;

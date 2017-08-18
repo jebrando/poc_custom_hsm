@@ -18,6 +18,9 @@ typedef void* DPS_CUSTOM_HSM_HANDLE;
 extern DPS_CUSTOM_HSM_HANDLE custom_hsm_create();
 extern void custom_hsm_destroy(DPS_CUSTOM_HSM_HANDLE handle);
 
+extern int initialize_hsm_system();
+extern void deinitialize_hsm_system();
+
 // x509 Functions
 extern char* custom_hsm_get_certificate(DPS_CUSTOM_HSM_HANDLE handle);
 extern char* custom_hsm_get_alias_key(DPS_CUSTOM_HSM_HANDLE handle);
