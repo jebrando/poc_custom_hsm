@@ -15,11 +15,15 @@ find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 set(source_c_files
-./src/tpm_openssl.c
+    ./src/custom_hsm_impl.c
+    ./src/tpm_openssl.c
+    ./src/x509_openssl.c
 )
 
 set(source_h_files
-./inc/tpm_openssl.h
+    ./inc/custom_hsm_impl.h
+    ./inc/tpm_openssl.h
+    ./inc/x509_openssl.h
 )
 
 include_directories(./inc)
