@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "custom_hsm_impl.h"
+#include "custom_hsm_tpm_impl.h"
+#include "custom_hsm_x509_impl.h"
 
 typedef struct CUSTOM_HSM_IMPL_TAG
 {

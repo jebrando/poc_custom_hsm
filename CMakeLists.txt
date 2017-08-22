@@ -39,3 +39,5 @@ ELSE()
 ENDIF(WIN32)
 
 add_library(poc_custom_hsm ${source_c_files} ${source_h_files})
+
+add_subdirectory(./sample)
