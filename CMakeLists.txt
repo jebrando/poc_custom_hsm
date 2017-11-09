@@ -21,11 +21,16 @@ set(source_c_files
 )
 
 set(source_h_files
+    # SDK Includes
+    ./hsm_client_data.h
+    ./custom_hsm_tpm_impl.h
+    ./custom_hsm_x509_impl.h
+    # Custom Files
     ./inc/tpm_openssl.h
     ./inc/x509_openssl.h
 )
 
-include_directories(./inc)
+include_directories(. ./inc)
 
 IF(WIN32)
     #windows needs this define

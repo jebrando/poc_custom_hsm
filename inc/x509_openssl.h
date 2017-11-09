@@ -19,13 +19,13 @@ typedef struct X509_OPENSSL_INFO_TAG* X509_OPENSSL_HANDLE;
 extern X509_OPENSSL_HANDLE x509_openssl_create(void);
 extern void x509_openssl_destroy(X509_OPENSSL_HANDLE handle);
 
-extern int x509_openssl_retrieve_ek(X509_OPENSSL_HANDLE handle, unsigned char* key_value, size_t length);
-extern int x509_openssl_retrieve_srk(X509_OPENSSL_HANDLE handle, unsigned char* key_value, size_t length);
+extern int initialize_x509(X509_OPENSSL_HANDLE handle);
+extern void deitialize_x509(X509_OPENSSL_HANDLE handle);
 
-extern int x509_openssl_insert_key(X509_OPENSSL_HANDLE handle, const unsigned char* key_value, size_t length);
+extern const char* x509_openssl_retrieve_cert(X509_OPENSSL_HANDLE handle);
+extern const char* x509_openssl_retrieve_private_key(X509_OPENSSL_HANDLE handle);
 
-extern int x509_openssl_hash_data(X509_OPENSSL_HANDLE handle, const unsigned char* data, size_t length);
-
+extern const char* x509_openssl_cert_common_name(X509_OPENSSL_HANDLE handle);
 extern const char* x509_openssl_get_last_error(X509_OPENSSL_HANDLE handle);
 
 #ifdef __cplusplus
