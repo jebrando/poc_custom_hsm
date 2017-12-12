@@ -35,7 +35,14 @@ HSM_CLIENT_HANDLE custom_hsm_create()
         }
         else // Create TPM
         {
-
+            result->tmp_impl = tpm_openssl_create();
+            if (result->tmp_impl == NULL)
+            {
+                (void)printf("Failure: tpm openssl create failed.");
+                x509_openssl_destroy(result->x509_impl);
+                free(result);
+                result = NULL;
+            }
         }
     }
     return (HSM_CLIENT_HANDLE)result;
@@ -51,12 +58,21 @@ void custom_hsm_destroy(HSM_CLIENT_HANDLE handle)
     }
 }
 
-int initialize_hsm_system()
+int hsm_client_x509_init()
 {
     return 0;
 }
 
-void deinitialize_hsm_system()
+void hsm_client_x509_deinit()
+{
+}
+
+int hsm_client_tpm_init()
+{
+    return 0;
+}
+
+void hsm_client_tpm_deinit()
 {
 }
 
@@ -193,12 +209,12 @@ int custom_hsm_get_storage_root_key(HSM_CLIENT_HANDLE handle, unsigned char** ke
     return result;
 }
 
-int custom_hsm_import_key(HSM_CLIENT_HANDLE handle, const unsigned char* key, size_t key_len)
+int custom_hsm_activate_id_key(HSM_CLIENT_HANDLE handle, const unsigned char* key, size_t key_len)
 {
     int result;
     if (handle == NULL || key == NULL || key_len == 0)
     {
-        (void)printf("Invalid argument specified handle: %p, key: %p, key_len: %d", handle, key, key_len);
+        (void)printf("Invalid argument specified handle: %p, key: %p, key_len: %d", handle, key, (int)key_len);
         result = __LINE__;
     }
     else
@@ -208,7 +224,7 @@ int custom_hsm_import_key(HSM_CLIENT_HANDLE handle, const unsigned char* key, si
     return result;
 }
 
-int custom_hsm_sign_key(HSM_CLIENT_HANDLE handle, const unsigned char* data, size_t data_len, unsigned char** signed_value, size_t* signed_len) 
+int custom_hsm_sign_with_identity(HSM_CLIENT_HANDLE handle, const unsigned char* data, size_t data_len, unsigned char** signed_value, size_t* signed_len)
 {
     int result;
     if (handle == NULL || data == NULL || data_len == 0 || signed_value == NULL || signed_len == NULL)
@@ -236,12 +252,11 @@ static const HSM_CLIENT_TPM_INTERFACE tpm_interface =
 {
     custom_hsm_create,
     custom_hsm_destroy,
-    custom_hsm_import_key,
+    custom_hsm_activate_id_key,
     custom_hsm_get_endorsement_key,
     custom_hsm_get_storage_root_key,
-    custom_hsm_sign_key
+    custom_hsm_sign_with_identity
 };
-
 
 const HSM_CLIENT_TPM_INTERFACE* hsm_client_tpm_interface()
 {

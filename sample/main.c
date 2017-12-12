@@ -1,13 +1,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-#include <vld.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "hsm_client_data.h"
-#include "custom_hsm_x509_impl.h"
-#include "custom_hsm_tpm_impl.h"
 
 void process_tpm_functions(const HSM_CLIENT_TPM_INTERFACE* tpm_functions)
 {
@@ -18,7 +14,12 @@ void process_tpm_functions(const HSM_CLIENT_TPM_INTERFACE* tpm_functions)
     }
     else
     {
-        //char* endorsement_key = tpm_functions->hsm_client_get_ek(handle);
+        unsigned char* ek_value;
+        size_t len;
+        if (tpm_functions->hsm_client_get_ek(handle, &ek_value, &len) == 0)
+        {
+            free(ek_value);
+        }
         // TODO: update tpm functions
         //tpm_functions->hsm_client_get_srk()
         tpm_functions->hsm_client_tpm_destroy(handle);
@@ -74,6 +75,7 @@ int main(void)
     }
     else
     {
+        process_tpm_functions(tpm_functions);
         process_x509_functions(x509_functions);
         result = 0;
     }
