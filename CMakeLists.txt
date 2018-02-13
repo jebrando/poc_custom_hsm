@@ -15,7 +15,7 @@ if("${OPENSSL_ROOT_DIR}" STREQUAL "" AND NOT ("$ENV{OpenSSLDir}" STREQUAL ""))
 endif()
 
 #find_package(OpenSSL REQUIRED)
-include_directories(. ./inc ${OPENSSL_INCLUDE_DIR} ${PROVIONING_INCLUDE_DIR})
+include_directories(. ./inc ${PROVIONING_INCLUDE_DIR})
 
 set(source_c_files
     ./src/custom_hsm_impl.c
