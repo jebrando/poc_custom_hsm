@@ -7,30 +7,26 @@ project(poc_custom_hsm)
 #Use solution folders.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Creating 
+set(PROVIONING_INCLUDE_DIR "../azure-iot-sdk-c/provisioning_client/adapters")
+
 if("${OPENSSL_ROOT_DIR}" STREQUAL "" AND NOT ("$ENV{OpenSSLDir}" STREQUAL ""))
     set(OPENSSL_ROOT_DIR $ENV{OpenSSLDir} CACHE PATH "")
 endif()
 
-find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
+#find_package(OpenSSL REQUIRED)
+include_directories(. ./inc ${OPENSSL_INCLUDE_DIR} ${PROVIONING_INCLUDE_DIR})
 
 set(source_c_files
     ./src/custom_hsm_impl.c
-    ./src/tpm_openssl.c
-    ./src/x509_openssl.c
+    ./src/tpm_impl.c
+    ./src/x509_impl.c
 )
 
 set(source_h_files
-    # SDK Includes
-    ./hsm_client_data.h
-    ./custom_hsm_tpm_impl.h
-    ./custom_hsm_x509_impl.h
-    # Custom Files
-    ./inc/tpm_openssl.h
-    ./inc/x509_openssl.h
+    ./inc/tpm_impl.h
+    ./inc/x509_impl.h
 )
-
-include_directories(. ./inc)
 
 IF(WIN32)
     #windows needs this define
@@ -40,7 +36,8 @@ IF(WIN32)
     add_definitions(/WX)
 ELSE()
     # Make warning as error
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -fPIC")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 ENDIF(WIN32)
 
 add_library(poc_custom_hsm ${source_c_files} ${source_h_files})
