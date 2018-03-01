@@ -7,25 +7,30 @@ project(poc_custom_hsm)
 #Use solution folders.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Creating 
-set(PROVIONING_INCLUDE_DIR "../azure-iot-sdk-c/provisioning_client/adapters")
+set(azure_iot_dir "The directory of the azure iot sdk directory")
 
-if("${OPENSSL_ROOT_DIR}" STREQUAL "" AND NOT ("$ENV{OpenSSLDir}" STREQUAL ""))
-    set(OPENSSL_ROOT_DIR $ENV{OpenSSLDir} CACHE PATH "")
+if ("${azure_iot_dir}" STREQUAL "")
+    #see if the azure iot directory is in the same path
+
 endif()
 
-find_package(OpenSSL REQUIRED)
-include_directories(. ./inc ${OPENSSL_INCLUDE_DIR} ${PROVIONING_INCLUDE_DIR})
+# Azure Provisioning include directory
+set(PROVIONING_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../azure-iot-sdk-c/provisioning_client/adapters")
+
+message(STATUS "prov: ${PROVIONING_INCLUDE_DIR}")
+
+#find_package(OpenSSL REQUIRED)
+include_directories(. ./inc ${PROVIONING_INCLUDE_DIR})
 
 set(source_c_files
     ./src/custom_hsm_impl.c
-    ./src/tpm_openssl.c
-    ./src/x509_openssl.c
+    ./src/tpm_impl.c
+    ./src/x509_impl.c
 )
 
 set(source_h_files
-    ./inc/tpm_openssl.h
-    ./inc/x509_openssl.h
+    ./inc/tpm_impl.h
+    ./inc/x509_impl.h
 )
 
 IF(WIN32)
@@ -40,6 +45,4 @@ ELSE()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 ENDIF(WIN32)
 
-add_library(poc_custom_hsm ${source_c_files} ${source_h_files})
-
-add_subdirectory(./sample)
+add_library(custom_hsm ${source_c_files} ${source_h_files})

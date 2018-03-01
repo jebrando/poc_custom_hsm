@@ -4,15 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "x509_openssl.h"
-#include "tpm_openssl.h"
+#include "x509_impl.h"
+#include "tpm_impl.h"
 
 #include "hsm_client_data.h"
 
 typedef struct CUSTOM_HSM_IMPL_TAG
 {
-    X509_OPENSSL_HANDLE x509_impl;
-    TPM_OPENSSL_HANDLE tmp_impl;
+    X509_HANDLE x509_impl;
+    TPM_HANDLE tmp_impl;
 } CUSTOM_HSM_IMPL;
 
 HSM_CLIENT_HANDLE custom_hsm_create()
@@ -26,7 +26,7 @@ HSM_CLIENT_HANDLE custom_hsm_create()
     else
     {
         memset(result, 0, sizeof(CUSTOM_HSM_IMPL));
-        result->x509_impl = x509_openssl_create();
+        result->x509_impl = x509_impl_create();
         if (result->x509_impl == NULL)
         {
             (void)printf("Failure: x509 openssl create failed.");
@@ -35,11 +35,11 @@ HSM_CLIENT_HANDLE custom_hsm_create()
         }
         else // Create TPM
         {
-            result->tmp_impl = tpm_openssl_create();
+            result->tmp_impl = tpm_impl_create();
             if (result->tmp_impl == NULL)
             {
                 (void)printf("Failure: tpm openssl create failed.");
-                x509_openssl_destroy(result->x509_impl);
+                x509_impl_destroy(result->x509_impl);
                 free(result);
                 result = NULL;
             }
@@ -53,27 +53,9 @@ void custom_hsm_destroy(HSM_CLIENT_HANDLE handle)
     if (handle != NULL)
     {
         CUSTOM_HSM_IMPL* hsm_impl = (CUSTOM_HSM_IMPL*)handle;
-        x509_openssl_destroy(hsm_impl->x509_impl);
+        x509_impl_destroy(hsm_impl->x509_impl);
         free(hsm_impl);
     }
-}
-
-int hsm_client_x509_init()
-{
-    return 0;
-}
-
-void hsm_client_x509_deinit()
-{
-}
-
-int hsm_client_tpm_init()
-{
-    return 0;
-}
-
-void hsm_client_tpm_deinit()
-{
 }
 
 char* custom_hsm_get_certificate(HSM_CLIENT_HANDLE handle)
@@ -87,7 +69,7 @@ char* custom_hsm_get_certificate(HSM_CLIENT_HANDLE handle)
     else
     {
         CUSTOM_HSM_IMPL* cust_hsm = (CUSTOM_HSM_IMPL*)handle;
-        const char* cert = x509_openssl_retrieve_cert(cust_hsm->x509_impl);
+        const char* cert = x509_impl_retrieve_cert(cust_hsm->x509_impl);
         if (cert == NULL)
         {
             (void)printf("Failure retrieving cert");
@@ -121,7 +103,7 @@ char* custom_hsm_get_alias_key(HSM_CLIENT_HANDLE handle)
     else
     {
         CUSTOM_HSM_IMPL* cust_hsm = (CUSTOM_HSM_IMPL*)handle;
-        const char* private_key = x509_openssl_retrieve_private_key(cust_hsm->x509_impl);
+        const char* private_key = x509_impl_retrieve_key_alias(cust_hsm->x509_impl);
         if (private_key == NULL)
         {
             (void)printf("Failure retrieving private key");
@@ -155,7 +137,7 @@ char* custom_hsm_get_common_name(HSM_CLIENT_HANDLE handle)
     else
     {
         CUSTOM_HSM_IMPL* cust_hsm = (CUSTOM_HSM_IMPL*)handle;
-        const char* common_name = x509_openssl_cert_common_name(cust_hsm->x509_impl);
+        const char* common_name = x509_impl_cert_common_name(cust_hsm->x509_impl);
         if (common_name == NULL)
         {
             (void)printf("Failure retrieving common name");
@@ -182,14 +164,35 @@ char* custom_hsm_get_common_name(HSM_CLIENT_HANDLE handle)
 int custom_hsm_get_endorsement_key(HSM_CLIENT_HANDLE handle, unsigned char** key, size_t* key_len)
 {
     int result;
-    if (handle == NULL)
+    if (handle == NULL || key == NULL || key_len == NULL)
     {
         (void)printf("Invalid handle value specified");
         result = __LINE__;
     }
     else
     {
-        result = __LINE__;
+        size_t ek_len;
+        CUSTOM_HSM_IMPL* cust_hsm = (CUSTOM_HSM_IMPL*)handle;
+        const unsigned char* ek = tpm_impl_retrieve_ek(cust_hsm->tmp_impl, &ek_len);
+        if (ek == NULL)
+        {
+            result = __LINE__;
+        }
+        else
+        {
+            key = malloc(ek_len);
+            if (key == NULL)
+            {
+                (void)printf("Failure allocating common name");
+                result = __LINE__;
+            }
+            else
+            {
+                memcpy(key, ek, ek_len);
+                *key_len = ek_len;
+                result = 0;
+            }
+        }
     }
     return result;
 }
@@ -204,7 +207,28 @@ int custom_hsm_get_storage_root_key(HSM_CLIENT_HANDLE handle, unsigned char** ke
     }
     else
     {
-        result = __LINE__;
+        size_t srk_len;
+        CUSTOM_HSM_IMPL* cust_hsm = (CUSTOM_HSM_IMPL*)handle;
+        const unsigned char* srk = tpm_impl_retrieve_srk(cust_hsm->tmp_impl, &srk_len);
+        if (srk == NULL)
+        {
+            result = __LINE__;
+        }
+        else
+        {
+            key = malloc(srk_len);
+            if (key == NULL)
+            {
+                (void)printf("Failure allocating common name");
+                result = __LINE__;
+            }
+            else
+            {
+                memcpy(key, srk, srk_len);
+                *key_len = srk_len;
+                result = 0;
+            }
+        }
     }
     return result;
 }
@@ -257,6 +281,24 @@ static const HSM_CLIENT_TPM_INTERFACE tpm_interface =
     custom_hsm_get_storage_root_key,
     custom_hsm_sign_with_identity
 };
+
+int hsm_client_x509_init()
+{
+    return 0;
+}
+
+void hsm_client_x509_deinit()
+{
+}
+
+int hsm_client_tpm_init()
+{
+    return 0;
+}
+
+void hsm_client_tpm_deinit()
+{
+}
 
 const HSM_CLIENT_TPM_INTERFACE* hsm_client_tpm_interface()
 {
